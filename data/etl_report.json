@@ -1,0 +1,180 @@
+{
+  "generated_at": "2026-10-12T12:46:23+00:00",
+  "source": {
+    "publisher": "台灣電力股份有限公司",
+    "dataset": "台灣電力公司發購電量(能源別)及公用售電業售電量(用途別)",
+    "dataset_url": "https://data.gov.tw/dataset/35392",
+    "license": "政府資料開放授權條款-第1版"
+  },
+  "raw_files": [
+    {
+      "file": "taipower_d003005_001_generation_by_source.csv",
+      "encoding": "cp950",
+      "rows": 422,
+      "sha256": "3dd42fc6eb3955548f36f881fea1580d573eedefaa186b0a41b11b828af04dde"
+    },
+    {
+      "file": "taipower_d003005_002_sales_by_use.csv",
+      "encoding": "utf-8-sig",
+      "rows": 80,
+      "sha256": "7cc8ee6a7e421757b41c2bf7566eae1fb08598fe43e0a9bd7b778f440e1d8759"
+    }
+  ],
+  "period": "2006–2025（年資料）",
+  "unit": "億度（1 億度 = 1 億 kWh）",
+  "checks": [
+    {
+      "check": "001 欄位",
+      "passed": true,
+      "detail": "欄位為 ['年度', '發購電', '能源別', '發購電量']"
+    },
+    {
+      "check": "002 欄位",
+      "passed": true,
+      "detail": "欄位為 ['年度', '用途別', '售電量']"
+    },
+    {
+      "check": "年度連續",
+      "passed": true,
+      "detail": "2006–2025 共 20 年"
+    },
+    {
+      "check": "無重複列",
+      "passed": true,
+      "detail": "422 列皆唯一（年度×發購電×能源別）"
+    },
+    {
+      "check": "類別加總＝總發購電量",
+      "passed": true,
+      "detail": "20 個年度，最大差異 0.000000 度"
+    },
+    {
+      "check": "2006 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2007 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2008 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2009 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2010 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2011 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2012 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2013 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2014 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2015 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2016 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2017 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2018 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2019 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2020 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2021 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2022 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2023 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2024 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "2025 占比合計",
+      "passed": true,
+      "detail": "100.0000000000%"
+    },
+    {
+      "check": "售電量年度與發購電量一致",
+      "passed": true,
+      "detail": "2006–2025"
+    },
+    {
+      "check": "售電量小於發購電量",
+      "passed": true,
+      "detail": "比值介於 92.38% 與 95.08%"
+    },
+    {
+      "check": "2025 總量 vs 台電公布",
+      "passed": true,
+      "detail": "ETL 2524.4 億度；公布 2524.4 億度"
+    },
+    {
+      "check": "2025 再生能源占比 vs 台電公布",
+      "passed": true,
+      "detail": "ETL 12.66%；公布 12.7%"
+    },
+    {
+      "check": "2025 核能占比 vs 台電公布",
+      "passed": true,
+      "detail": "ETL 1.24%；公布 1.2%"
+    }
+  ],
+  "warnings": [
+    "2025 台電燃氣 原檔為科學記號「1.01022E+11」，有效位數只到 6 位，誤差約 ±0.05 億度"
+  ]
+}

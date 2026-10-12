@@ -2,237 +2,569 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>台灣發電機構探索</title>
-<meta name="description" content="認識台灣電力系統的發電原理、七種發電方式、2025 年發電結構與能源轉型時間線（學生課程作品）。">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>台灣發電機構圖鑑</title>
+<meta name="description" content="以台電開放資料（2006–2025 發購電量能源別）經 ETL 整理後，分析台灣發電結構變化與各種發電機構原理。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
+/* Layout: 單欄資料報告。上方 KPI → 可篩選的趨勢圖 → 再生能源分析 → 年度明細表 → 發電機構說明 → 資料來源與方法 */
 :root{
-  --bg:#f6f7f9; --surface:#ffffff; --text:#1c2430; --muted:#5b6675; --border:#dde2e9;
-  --accent:#1f6feb; --accent-soft:#e3eeff;
-  --thermal:#d9534f; --renew:#2e9e5b; --nuclear:#8e5bd1; --other:#9aa4b2;
-  --shadow:0 1px 3px rgba(20,30,50,.08);
+  --bg:#F3F5F4; --surface:#FFFFFF; --ink:#16232E; --muted:#56656F; --line:#CBD3D2; --grid:#E3E8E7;
+  --accent:#C2410C; --cool:#1F6F78; --cool-soft:#D7ECEC; --good:#2F7D4F; --bad:#B42318;
+  /* 能源類別色 */
+  --c-coal:#4B4F58; --c-gas:#C2410C; --c-oil:#8A5A2B; --c-cogen:#C49A6C; --c-nuclear:#7C3AED;
+  --c-pumped:#5B7DB1; --c-battery:#94A3B8; --c-solar:#D99A00; --c-wind:#1F9E89; --c-hydro:#2563EB; --c-otherre:#5E9E3F;
+  --display:"Noto Serif TC","Songti TC","PMingLiU",serif;
+  --body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#0f141b; --surface:#18202a; --text:#e6ebf2; --muted:#9aa7b8; --border:#2a3441;
-    --accent:#6aa6ff; --accent-soft:#1c2c47;
-    --thermal:#ef7b77; --renew:#4cc582; --nuclear:#b48af0; --other:#6f7b8b;
-    --shadow:none;
-  }
-}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#10181E; --surface:#18232B; --ink:#E6ECEC; --muted:#9AA8AF; --line:#2C3A43; --grid:#22303A;
+  --accent:#F08A4B; --cool:#5FBFC8; --cool-soft:#15333A; --good:#5CC48A; --bad:#F2796B;
+  --c-coal:#A3A9B4; --c-gas:#F08A4B; --c-oil:#C08A57; --c-cogen:#DDB993; --c-nuclear:#A78BFA;
+  --c-pumped:#8FA9D6; --c-battery:#CBD5E1; --c-solar:#F5C542; --c-wind:#3CC7AE; --c-hydro:#60A5FA; --c-otherre:#8BCB6A;
+  color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f141b; --surface:#18202a; --text:#e6ebf2; --muted:#9aa7b8; --border:#2a3441;
-  --accent:#6aa6ff; --accent-soft:#1c2c47;
-  --thermal:#ef7b77; --renew:#4cc582; --nuclear:#b48af0; --other:#6f7b8b;
-  --shadow:none;
-}
+  --bg:#10181E; --surface:#18232B; --ink:#E6ECEC; --muted:#9AA8AF; --line:#2C3A43; --grid:#22303A;
+  --accent:#F08A4B; --cool:#5FBFC8; --cool-soft:#15333A; --good:#5CC48A; --bad:#F2796B;
+  --c-coal:#A3A9B4; --c-gas:#F08A4B; --c-oil:#C08A57; --c-cogen:#DDB993; --c-nuclear:#A78BFA;
+  --c-pumped:#8FA9D6; --c-battery:#CBD5E1; --c-solar:#F5C542; --c-wind:#3CC7AE; --c-hydro:#60A5FA; --c-otherre:#8BCB6A;
+  color-scheme:dark}
+
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:64px}
-body{margin:0;background:var(--bg);color:var(--text);
-  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}
-.wrap{max-width:960px;margin:0 auto;padding:0 16px}
-header.site{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border)}
-header.site .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
-.brand{font-weight:700;margin-right:auto}
-nav a{color:var(--muted);text-decoration:none;margin-right:14px;font-size:.92rem}
-nav a:hover{color:var(--accent)}
-#themeBtn{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:.85rem}
-.hero{padding:48px 0 24px}
-.hero h1{font-size:clamp(1.7rem,5vw,2.6rem);margin:0 0 8px;line-height:1.3}
-.hero p{color:var(--muted);margin:0;max-width:640px}
-section{padding:32px 0}
-h2{font-size:1.5rem;margin:0 0 16px}
-h3{font-size:1.1rem;margin:20px 0 8px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.formula{font-family:ui-monospace,Consolas,monospace;background:var(--accent-soft);padding:10px 14px;border-radius:8px;display:inline-block;margin:6px 0}
-.big{font-size:2.2rem;font-weight:700;color:var(--accent);line-height:1.2}
-/* tabs */
-.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
-.tabs button{flex:none;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit;font-size:.92rem}
-.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
-.tabs button:focus-visible,#themeBtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
-.chain span.node{background:var(--accent-soft);border-radius:8px;padding:4px 10px;font-size:.9rem}
-.chain span.arrow{color:var(--muted)}
-ol.steps{padding-left:1.3em;margin:6px 0}
-ol.steps li{margin:4px 0}
-.tag{display:inline-block;border:1px solid var(--border);border-radius:6px;padding:1px 8px;margin:2px 4px 2px 0;font-size:.88rem}
-.note{color:var(--muted);font-size:.88rem}
-/* mix bar */
-.bar{display:flex;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
-.bar div{display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;font-size:.85rem;min-width:0;overflow:hidden}
-.legend{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
-.legend li{display:flex;align-items:center;gap:8px}
-.dot{width:14px;height:14px;border-radius:4px;flex:none}
-/* timeline */
-.timeline{list-style:none;margin:0;padding:0 0 0 22px;border-left:3px solid var(--border)}
-.timeline li{position:relative;margin:0 0 22px;padding-left:14px}
-.timeline li::before{content:"";position:absolute;left:-30px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
-.timeline time{font-weight:700;color:var(--accent)}
-.targets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.targets div{background:var(--accent-soft);border-radius:10px;padding:10px;text-align:center}
-.targets b{display:block;font-size:1.5rem}
-footer{border-top:1px solid var(--border);margin-top:32px;padding:24px 0 40px;color:var(--muted);font-size:.88rem}
-@media (max-width:640px){
-  .grid2{grid-template-columns:1fr}
-  nav{display:none}
-  .card{padding:16px}
-  .targets b{font-size:1.2rem}
-}
-@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.75;padding-inline:20px;padding-block:0 48px}
+.wrap{max-width:1040px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);line-height:1.25;text-wrap:balance;margin:0}
+p{margin:0}
+a{color:var(--cool)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.label{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+.hero{padding-block:48px 28px;display:grid;gap:18px;border-bottom:1px solid var(--line)}
+.hero h1{font-size:clamp(32px,6.5vw,58px);font-weight:900;letter-spacing:.02em}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{max-width:40em;color:var(--muted);font-size:17px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{border-top:3px solid var(--ink);padding-top:10px;display:grid;gap:2px;min-width:0}
+.kpi b{font-family:var(--mono);font-size:26px;font-weight:500;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--muted)}
+.srcline{font-size:13px;color:var(--muted)}
+
+section{padding-block:44px;border-bottom:1px solid var(--line);display:grid;gap:18px}
+section>h2,.sec-head h2{font-size:clamp(22px,3.6vw,32px)}
+.sec-head{display:grid;gap:6px}
+.intro{max-width:44em;color:var(--muted)}
+
+/* controls */
+.controls{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:end;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.ctl{display:grid;gap:4px}
+.ctl label,.ctl .label{font-size:12px}
+select{font:inherit;font-size:15px;padding:6px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;padding:6px 12px;border:0;background:var(--bg);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;padding:4px 10px 4px 8px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip i{width:10px;height:10px;border-radius:2px;display:inline-block}
+.chip[aria-pressed="false"]{opacity:.45}
+.chip[aria-pressed="false"] i{background:transparent!important;border:1px solid var(--muted)}
+.linkbtn{font:inherit;font-size:13px;background:none;border:0;color:var(--cool);cursor:pointer;padding:4px 2px;text-decoration:underline}
+
+.chartbox{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:16px;display:grid;gap:10px}
+.chartbox .cap{font-size:13px;color:var(--muted)}
+.canvas-wrap{position:relative;height:420px;min-width:0}
+@media (max-width:600px){.canvas-wrap{height:340px}}
+
+.insights{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.insight{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.insight b{font-family:var(--mono);font-size:22px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--accent)}
+.insight p{font-size:14px;color:var(--muted)}
+
+.two{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:16px}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+
+.tablewrap{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 12px;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+thead th{font-weight:500;color:var(--muted);font-size:12px;letter-spacing:.04em;background:var(--bg)}
+td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+tfoot td{font-weight:700;border-top:2px solid var(--line)}
+.up{color:var(--good)} .down{color:var(--bad)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:8px;vertical-align:middle}
+.rank{font-family:var(--mono);color:var(--muted);width:2em}
+
+/* mechanisms */
+.tabs{display:flex;flex-wrap:wrap;gap:8px}
+.tab{font:inherit;font-size:15px;padding:7px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:22px;display:grid;gap:18px}
+.panel-top{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:baseline}
+.panel h3{font-size:26px}
+.role{font-size:13px;padding:3px 10px;border-radius:4px;background:var(--cool-soft);color:var(--cool);font-weight:500}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.chain .node{padding:7px 12px;border:1.5px solid var(--ink);border-radius:4px;font-weight:500;font-size:14px;background:var(--bg)}
+.chain .node.end{background:var(--accent);border-color:var(--accent);color:#fff}
+.chain .arrow{color:var(--muted);font-family:var(--mono)}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.cols>div{min-width:0;display:grid;gap:8px;align-content:start}
+ol.flow{margin:0;padding-left:1.3em;display:grid;gap:4px;font-size:15px}
+.mini{font-size:14px;color:var(--muted);background:var(--bg);padding:12px 14px;border-radius:4px}
+.mini b{color:var(--ink);font-family:var(--mono);font-weight:500}
+
+/* method */
+.method{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.method>div{min-width:0;display:grid;gap:8px;align-content:start}
+.method h3{font-size:18px}
+.method ul,.method ol{margin:0;padding-left:1.2em;font-size:14px;display:grid;gap:4px}
+code{font-family:var(--mono);font-size:12.5px;background:var(--bg);padding:1px 5px;border-radius:3px;word-break:break-all}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:12px;padding:2px 8px;border-radius:999px;background:var(--cool-soft);color:var(--cool)}
+.pill.warn{background:var(--bg);color:var(--accent);border:1px solid var(--accent)}
+
+.error{background:var(--surface);border:1px solid var(--bad);color:var(--bad);border-radius:6px;padding:14px 16px}
+footer{padding-block:28px 0;font-size:13px;color:var(--muted);display:grid;gap:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
-<header class="site">
-  <div class="wrap">
-    <span class="brand">⚡ 台灣發電機構探索</span>
-    <nav aria-label="頁面導覽">
-      <a href="#principle">發電原理</a><a href="#types">發電方式</a><a href="#mix">發電結構</a><a href="#timeline">能源轉型</a>
-    </nav>
-    <button id="themeBtn" type="button" aria-label="切換深色／淺色模式">🌓 主題</button>
+<div class="wrap">
+
+<header class="hero">
+  <p class="label">Taipower open data · 2006–2025 · 單位：億度</p>
+  <h1>台灣的電，<em>從哪裡來</em></h1>
+  <p class="lede">用台電公開的歷年發購電量原始資料，經 Python ETL 清理、分類與加總核對後，觀察 20 年來燃煤、燃氣、核能與再生能源的消長，並介紹每一種發電機構的運作原理。</p>
+  <div class="kpis" id="kpis" aria-live="polite">
+    <div class="kpi"><b>—</b><span>資料載入中</span></div>
   </div>
+  <p class="srcline">資料來源：台灣電力股份有限公司〈台灣電力公司發購電量(能源別)及公用售電業售電量(用途別)〉，政府資料開放平臺 <a href="https://data.gov.tw/dataset/35392" target="_blank" rel="noopener">data.gov.tw/dataset/35392</a>。統計範圍為台電系統（台電自發＋購電），資料期間 <span id="period">2006–2025</span> 年。</p>
 </header>
 
-<main class="wrap">
-  <div class="hero">
-    <h1>電是怎麼來的？<br>認識台灣的七種發電方式</h1>
-    <p>從電磁感應的基本原理出發，了解台灣電網如何由不同電源組成，以及能源轉型正在發生的事。</p>
+<div id="loadError" class="error" hidden></div>
+
+<section id="trend">
+  <div class="sec-head"><p class="label">圖 1 · 能源別趨勢</p><h2>各能源別發購電量</h2></div>
+  <p class="intro">可以調整年份區間、切換「億度」或「占比」，並點選下方能源類別篩選顯示。滑鼠移到長條上可看各類別的數值。</p>
+  <div class="controls">
+    <div class="ctl"><label for="yStart">起始年</label><select id="yStart"></select></div>
+    <div class="ctl"><label for="yEnd">結束年</label><select id="yEnd"></select></div>
+    <div class="ctl"><span class="label">單位</span>
+      <div class="seg" role="group" aria-label="單位">
+        <button type="button" id="unitAbs" aria-pressed="true">億度</button>
+        <button type="button" id="unitPct" aria-pressed="false">占比 %</button>
+      </div>
+    </div>
+    <div class="ctl" style="flex:1 1 320px;min-width:0"><span class="label">能源類別</span>
+      <div class="chips" id="chips"></div>
+      <div><button type="button" class="linkbtn" id="selAll">全部</button> · <button type="button" class="linkbtn" id="selRe">只看再生能源</button> · <button type="button" class="linkbtn" id="selFossil">只看火力</button></div>
+    </div>
   </div>
+  <div class="chartbox">
+    <div class="canvas-wrap"><canvas id="chartTrend" aria-label="各能源別發購電量堆疊長條圖"></canvas></div>
+    <p class="cap" id="capTrend"></p>
+  </div>
+  <div class="insights" id="insights"></div>
+</section>
 
-  <section id="principle">
-    <h2>一、發電原理</h2>
-    <div class="grid2">
-      <div class="card">
-        <h3 style="margin-top:0">電磁感應</h3>
-        <p>1831 年法拉第發現：當導線切割磁力線，或穿過線圈的磁通量改變時，導線中就會產生感應電動勢。發電機就是利用這個原理，用「動力」推動轉子，讓線圈與磁場持續相對運動而產生電。</p>
-        <div class="formula">ε = −N · ΔΦ / Δt</div>
-        <p class="note">N 為線圈匝數，Φ 為磁通量。轉得越快、磁場越強、匝數越多，電壓越高。</p>
-      </div>
-      <div class="card">
-        <h3 style="margin-top:0">台灣電網 60 Hz</h3>
-        <div class="big">60 Hz</div>
-        <p>台灣市電是頻率 60 赫茲的交流電，也就是電壓方向每秒來回變化 60 次。全網所有發電機必須「同步」運轉在相同頻率；用電大於供電時頻率下降，反之上升，所以電力調度的核心任務之一就是維持頻率穩定。</p>
-        <p class="note">同步發電機轉速 = 120 × 頻率 ÷ 極數。例如 4 極機組：120×60÷4 = 1800 rpm。</p>
-      </div>
+<section id="renewable">
+  <div class="sec-head"><p class="label">圖 2 · 再生能源分析</p><h2>再生能源占比與年增率</h2></div>
+  <p class="intro">折線是再生能源占台電系統發購電量的比例（左軸），長條是再生能源發購電量較前一年的成長率（右軸）。右側表格依所選年份區間，排出各再生能源類別的成長幅度。年份區間與圖 1 同步。</p>
+  <div class="two">
+    <div class="chartbox">
+      <div class="canvas-wrap"><canvas id="chartRe" aria-label="再生能源占比與年增率組合圖"></canvas></div>
+      <p class="cap" id="capRe"></p>
     </div>
-    <div class="card" style="margin-top:16px">
-      <h3 style="margin-top:0">共通概念：各種發電方式差在哪？</h3>
-      <p>除了太陽光電（利用光電效應直接產生直流電，再經變流器轉為交流電），其他方式幾乎都是「<b>讓渦輪機轉動 → 帶動發電機</b>」。差別只在於用什麼來推動渦輪：蒸汽、燃氣、流水或風。</p>
+    <div class="tablewrap">
+      <table id="rankTable">
+        <caption class="label" style="text-align:left;padding:12px 12px 0" id="rankCap"></caption>
+        <thead><tr><th>#</th><th>類別</th><th class="num">起</th><th class="num">迄</th><th class="num">增量</th><th class="num">年均成長</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section id="types">
-    <h2>二、七種發電方式</h2>
-    <div class="tabs" role="tablist" aria-label="發電方式"></div>
-    <div class="card" id="panel" role="tabpanel" tabindex="0"></div>
-    <p class="note">電廠與機組狀態可能隨時間調整，內容為課程整理，請以台電公開資料為準。</p>
-  </section>
+<section id="detail">
+  <div class="sec-head"><p class="label">表 1 · 年度明細</p><h2>單一年度的發電結構</h2></div>
+  <div class="controls">
+    <div class="ctl"><label for="ySel">年度</label><select id="ySel"></select></div>
+    <p class="intro" style="font-size:14px">表中數字直接來自 ETL 輸出的 <code>data/generation_by_group.csv</code>，可與原始資料逐列核對。</p>
+  </div>
+  <div class="tablewrap">
+    <table id="detailTable">
+      <thead><tr><th>能源類別</th><th class="num">發購電量（億度）</th><th class="num">占比</th><th class="num">較前一年（億度）</th><th class="num">較前一年（%）</th></tr></thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </div>
+</section>
 
-  <section id="mix">
-    <h2>三、2025 年台電發電結構</h2>
-    <div class="card">
-      <div class="bar" role="img" aria-label="2025 年台電發電結構：火力 81.3%、再生能源 12.7%、核能 1.2%、其他 4.8%">
-        <div style="width:81.3%;background:var(--thermal)">火力 81.3%</div>
-        <div style="width:12.7%;background:var(--renew)">12.7%</div>
-        <div style="width:1.2%;background:var(--nuclear)"></div>
-        <div style="width:4.8%;background:var(--other)"></div>
-      </div>
-      <ul class="legend">
-        <li><span class="dot" style="background:var(--thermal)"></span>火力（燃煤、燃氣等）<b>81.3%</b></li>
-        <li><span class="dot" style="background:var(--renew)"></span>再生能源 <b>12.7%</b></li>
-        <li><span class="dot" style="background:var(--nuclear)"></span>核能 <b>1.2%</b></li>
-        <li><span class="dot" style="background:var(--other)"></span>其他／未列入 <b>4.8%</b></li>
+<section id="mechanisms">
+  <div class="sec-head"><p class="label">發電機構</p><h2>每一種電，是怎麼發出來的</h2></div>
+  <p class="intro">除了太陽光電，其他發電方式都是用不同的力量推動渦輪，帶動發電機旋轉，靠電磁感應產生 60 Hz 交流電。點選分類查看能量轉換過程；下方的數字取自資料集中該類別在最新年度的發購電量。</p>
+  <div class="tabs" role="tablist" id="mtabs"></div>
+  <div class="panel" role="tabpanel" id="mpanel" aria-live="polite"></div>
+</section>
+
+<section id="method">
+  <div class="sec-head"><p class="label">資料來源與方法</p><h2>資料怎麼來、怎麼處理</h2></div>
+  <div class="method">
+    <div>
+      <h3>資料來源</h3>
+      <ul>
+        <li>發布機關：台灣電力股份有限公司</li>
+        <li>資料集：台灣電力公司發購電量(能源別)及公用售電業售電量(用途別)</li>
+        <li>平臺：<a href="https://data.gov.tw/dataset/35392" target="_blank" rel="noopener">政府資料開放平臺 #35392</a></li>
+        <li>原始檔：<code>d003005/001.csv</code>（發購電量，能源別）、<code>d003005/002.csv</code>（售電量，用途別），存放於 repo 的 <code>raw/</code>，未經修改</li>
+        <li>授權：政府資料開放授權條款－第 1 版</li>
+        <li>資料期間：<span id="period2">2006–2025</span> 年，年資料；單位為度（kWh），網站換算為億度</li>
       </ul>
-      <p class="note">前三項依課程提供資料；「其他」為與 100% 的差額（例如抽蓄水力等未單獨列出的項目），僅供比例對照。核能占比低，是因為核二、核一已除役、核三陸續停機。</p>
     </div>
-  </section>
-
-  <section id="timeline">
-    <h2>四、能源轉型時間線</h2>
-    <ol class="timeline">
-      <li><time datetime="2025-05-17">2025/5/17</time><br>核三 2 號機停機。台灣的核能機組至此全數停止運轉，邁向「非核家園」。</li>
-      <li><time datetime="2025-08-23">2025/8/23</time><br>核三重啟公投未通過。社會對是否讓核三再度運轉進行投票，結果未通過。</li>
-      <li><time datetime="2030">2030 年</time><br>政府設定的發電結構目標：
-        <div class="targets">
-          <div><b>50%</b>燃氣</div><div><b>30%</b>綠電</div><div><b>20%</b>燃煤</div>
-        </div>
-      </li>
-    </ol>
-  </section>
-</main>
+    <div>
+      <h3>ETL 流程（<code>etl/etl.py</code>）</h3>
+      <ol>
+        <li>Extract：讀取原始檔，自動判斷編碼（001 為 Big5、002 為 UTF-8）</li>
+        <li>Transform：16 種原始能源別對應到 11 個分析類別（<code>data/category_map.csv</code>），台電自發與購電合併計算，算出占比、再生能源占比與年增率</li>
+        <li>Validate：類別加總＝總量、占比合計 100%、年度連續、無重複、無負值，並與台電公布的 2025 年數字比對</li>
+        <li>Load：輸出 <code>data/*.csv</code> 與 <code>data/etl_report.json</code>；任何核對失敗就不寫出資料</li>
+      </ol>
+      <div class="checks" id="checks"></div>
+    </div>
+    <div>
+      <h3>限制與說明</h3>
+      <ul>
+        <li>統計範圍是台電系統的發購電量，含台電自發及向民營電廠、汽電共生、再生能源業者購電；不含轉供、直供與自用發電設備。</li>
+        <li>抽蓄水力與儲能電池屬於儲能，不計入再生能源。</li>
+        <li>汽電共生在本站單獨列為一類，並計入「火力」篩選。因此火力占比會比台電新聞稿中的「火力」略高。</li>
+        <li>再生能源包含太陽光電、風力、水力（慣常、承攬、購電小水力）、地熱、生質能、廢棄物、垃圾沼氣。依此口徑，2025 年占比 <span id="re25">—</span>，與台電公布的 12.7% 一致。</li>
+        <li id="warnItem">原始檔 2025 年台電燃氣數值以科學記號儲存，有效位數較少。</li>
+        <li>台電資料擷取自營運系統，與其他機關（如能源署全國發電量）的統計口徑不同，數字不可直接相加比較。</li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <footer>
-  <div class="wrap">
-    <p><b>本網站為學生課程作品，並非台灣電力公司（台電）官方網站</b>，與台電無隸屬或合作關係，亦未使用台電商標。內容整理自公開資料，僅供學習參考，實際數據請以官方公布為準。</p>
-  </div>
+  <p>學生課程作品，非台灣電力公司官方網站，未使用台電商標。原始資料版權屬台灣電力公司，依政府資料開放授權條款使用。</p>
+  <p>圖表：Chart.js 4.4.1。原始碼與資料：repo 的 <code>raw/</code>、<code>etl/</code>、<code>data/</code> 資料夾。</p>
 </footer>
+</div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script>
-const TYPES=[
-{name:"燃煤",chain:["煤炭化學能","鍋爐熱能","高壓蒸汽動能","汽輪機機械能","電能"],
- steps:["煤炭磨成煤粉送入鍋爐燃燒","加熱鍋爐水管產生高溫高壓蒸汽","蒸汽推動汽輪機旋轉，帶動發電機","蒸汽冷凝成水再回鍋爐循環","升壓後送入電網"],
- plants:["台中發電廠","興達發電廠","林口發電廠"],
- note:"出力穩定、適合基載，但碳排放量最高。"},
-{name:"燃氣複循環",chain:["天然氣化學能","燃燒高溫氣體","燃氣渦輪機械能","餘熱蒸汽","蒸汽渦輪機械能","電能"],
- steps:["天然氣與壓縮空氣在燃燒室燃燒，推動燃氣渦輪發電","排出的高溫廢氣進入廢熱回收鍋爐產生蒸汽","蒸汽再推動蒸汽渦輪第二次發電","兩段發電使熱效率明顯高於傳統燃煤"],
- plants:["大潭發電廠","通霄發電廠","興達發電廠（燃氣機組）"],
- note:"效率高、碳排較煤低、啟停快，是目前轉型的主力。"},
-{name:"慣常水力",chain:["水的位能","水流動能","水輪機機械能","電能"],
- steps:["水庫或攔河堰蓄水形成水位落差","水經壓力鋼管衝擊水輪機","水輪機帶動發電機發電","尾水排回河道"],
- plants:["德基水力發電廠","石門水力發電廠","大觀二廠（日月潭一帶水力）"],
- note:"無燃料與排放，但受降雨與地形限制；也兼具防洪、供水功能。"},
-{name:"抽蓄水力",chain:["電能（離峰）","水泵機械能","上池水位能","水輪機機械能","電能（尖峰）"],
- steps:["離峰時利用多餘電力把下池的水抽到上池儲存","尖峰用電時放水推動水輪機發電","發電後水回到下池，可反覆使用"],
- plants:["明潭抽蓄發電廠","大觀一廠（大觀抽蓄）"],
- note:"本身是「大型水力電池」，用於調節尖離峰與穩定電網，並非新增能源。"},
-{name:"核能",chain:["鈾原子核能","裂變熱能","蒸汽動能","汽輪機機械能","電能"],
- steps:["鈾 235 在反應爐內進行可控制的核分裂，釋放熱量","熱量加熱冷卻水並產生蒸汽","蒸汽推動汽輪發電機發電","冷凝後循環；以控制棒調節反應速率"],
- plants:["核三廠（馬鞍山，已於 2025/5/17 停機）","核一、核二廠（已停機，進入除役）"],
- note:"發電時幾乎不排碳、出力穩定；課題在核廢料處理與安全。"},
-{name:"風力",chain:["風的動能","葉片機械能","增速／發電機","電能"],
- steps:["風吹動葉片使轉子旋轉","經齒輪箱增速（或直驅）帶動發電機","變流器調整成符合 60 Hz 的電力","海纜或電線送上電網"],
- plants:["台電離岸風力發電計畫（彰化外海）","澎湖中屯風力發電站","台中風力發電站"],
- note:"無燃料與排放，但出力隨風況變動，需要其他電源搭配。"},
-{name:"太陽光電",chain:["太陽光能","光電效應（直流電）","變流器","交流電能"],
- steps:["太陽光照射電池板，半導體產生光電效應與直流電","變流器將直流電轉換成 60 Hz 交流電","經升壓併入電網"],
- plants:["台電興達光電場","台電在各地的太陽光電場（如彰濱工業區等）"],
- note:"沒有轉動機件，白天發電、夜間為零，中午大量併網會影響電網調度。"}
-];
-const tabs=document.querySelector(".tabs"),panel=document.getElementById("panel");
-function show(i){
-  const t=TYPES[i];
-  [...tabs.children].forEach((b,j)=>{b.setAttribute("aria-selected",j===i);b.tabIndex=j===i?0:-1});
-  panel.setAttribute("aria-labelledby","tab"+i);
-  const chain=t.chain.map(c=>`<span class="node">${c}</span>`).join('<span class="arrow" aria-hidden="true">→</span>');
-  panel.innerHTML=`<h3 style="margin-top:0">${t.name}</h3>
-   <h3>能量轉換鏈</h3><div class="chain">${chain}</div>
-   <h3>運作流程</h3><ol class="steps">${t.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
-   <h3>台灣代表電廠</h3><div>${t.plants.map(p=>`<span class="tag">${p}</span>`).join("")}</div>
-   <p class="note" style="margin-top:12px">特點：${t.note}</p>`;
-}
-TYPES.forEach((t,i)=>{
-  const b=document.createElement("button");
-  b.type="button";b.id="tab"+i;b.setAttribute("role","tab");b.textContent=t.name;
-  b.onclick=()=>show(i);
-  b.onkeydown=e=>{
-    const n=TYPES.length;let k=null;
-    if(e.key==="ArrowRight")k=(i+1)%n;else if(e.key==="ArrowLeft")k=(i-1+n)%n;
-    if(k!==null){show(k);tabs.children[k].focus();e.preventDefault()}
-  };
-  tabs.appendChild(b);
-});
-show(0);
+(() => {
+"use strict";
 
-// 主題切換（偏好存 localStorage，失敗時忽略）
-const root=document.documentElement;
-try{const s=localStorage.getItem("theme");if(s)root.dataset.theme=s}catch(e){}
-document.getElementById("themeBtn").onclick=()=>{
-  const dark=root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
-  const next=dark?"light":"dark";
-  root.dataset.theme=next;
-  try{localStorage.setItem("theme",next)}catch(e){}
-};
+const GROUPS = [
+  { key:"燃煤",     css:"--c-coal",    fossil:true },
+  { key:"燃氣",     css:"--c-gas",     fossil:true },
+  { key:"燃油",     css:"--c-oil",     fossil:true },
+  { key:"汽電共生", css:"--c-cogen",   fossil:true },
+  { key:"核能",     css:"--c-nuclear" },
+  { key:"抽蓄水力", css:"--c-pumped" },
+  { key:"儲能電池", css:"--c-battery" },
+  { key:"太陽光電", css:"--c-solar",   re:true },
+  { key:"風力",     css:"--c-wind",    re:true },
+  { key:"水力",     css:"--c-hydro",   re:true },
+  { key:"其他再生", css:"--c-otherre", re:true },
+];
+const RE_KEYS = GROUPS.filter(g=>g.re).map(g=>g.key);
+
+const state = { start:null, end:null, unit:"abs", on:new Set(GROUPS.map(g=>g.key)), year:null };
+const D = { years:[], byGroup:{}, summary:{}, report:null };
+let chartTrend = null, chartRe = null;
+
+const $ = s => document.querySelector(s);
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fmt = (n, d=1) => Number(n).toLocaleString("zh-TW", { minimumFractionDigits:d, maximumFractionDigits:d });
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function parseCSV(text){
+  const lines = text.replace(/^﻿/,"").trim().split(/\r?\n/);
+  const head = lines.shift().split(",");
+  return lines.map(l => { const v = l.split(","); const o = {}; head.forEach((h,i)=>o[h]=v[i]); return o; });
+}
+async function getText(path){
+  const r = await fetch(path, { cache:"no-cache" });
+  if (!r.ok) throw new Error(`${path} 回應 ${r.status}`);
+  return r.text();
+}
+
+async function load(){
+  const [g, s, rep] = await Promise.all([
+    getText("data/generation_by_group.csv"),
+    getText("data/annual_summary.csv"),
+    getText("data/etl_report.json").then(JSON.parse).catch(()=>null),
+  ]);
+  for (const r of parseCSV(g)) {
+    const y = +r.year;
+    (D.byGroup[y] ||= {})[r.group] = { yidu:+r.yidu, pct:+r.share_pct };
+  }
+  for (const r of parseCSV(s)) {
+    D.summary[+r.year] = {
+      total:+r.total_yidu, re:+r.renewable_yidu, rePct:+r.renewable_share_pct,
+      reYoy: r.renewable_yoy_pct === "" ? null : +r.renewable_yoy_pct,
+      fossilPct:+r.fossil_share_pct, nuclearPct:+r.nuclear_share_pct,
+      coalPct:+r.coal_share_pct, gasPct:+r.gas_share_pct, sales:+r.sales_yidu, salesRatio:+r.sales_to_supply_pct,
+    };
+  }
+  D.years = Object.keys(D.byGroup).map(Number).sort((a,b)=>a-b);
+  D.report = rep;
+}
+
+/* ---------- 共用 ---------- */
+function yearsInRange(){ return D.years.filter(y => y >= state.start && y <= state.end); }
+function chartColors(){ return { ink:css("--ink"), muted:css("--muted"), grid:css("--grid"), surface:css("--surface"), good:css("--good"), bad:css("--bad"), accent:css("--accent"), cool:css("--cool") }; }
+function baseOptions(c){
+  return {
+    responsive:true, maintainAspectRatio:false, animation:{ duration: matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 300 },
+    interaction:{ mode:"index", intersect:false },
+    plugins:{
+      legend:{ display:false },
+      tooltip:{ backgroundColor:c.surface, titleColor:c.ink, bodyColor:c.ink, borderColor:c.grid, borderWidth:1, padding:10,
+                titleFont:{ family:"IBM Plex Mono" }, bodyFont:{ family:"Noto Sans TC" } },
+    },
+  };
+}
+function axisTitle(text, c){ return { display:true, text, color:c.muted, font:{ size:12, family:"Noto Sans TC" } }; }
+
+/* ---------- KPI 與洞察 ---------- */
+function renderKPIs(){
+  const last = D.years.at(-1), s = D.summary[last], g = D.byGroup[last];
+  $("#period").textContent = $("#period2").textContent = `${D.years[0]}–${last}`;
+  $("#kpis").innerHTML = [
+    [`${fmt(s.total)} 億度`, `${last} 年台電系統發購電量`],
+    [`${fmt(g["燃氣"].pct)}%`, `${last} 年燃氣占比`],
+    [`${fmt(s.rePct)}%`, `${last} 年再生能源占比`],
+    [`${fmt(s.nuclearPct)}%`, `${last} 年核能占比`],
+  ].map(([b,t]) => `<div class="kpi"><b>${b}</b><span>${t}</span></div>`).join("");
+  $("#re25").textContent = D.summary[2025] ? `${fmt(D.summary[2025].rePct,2)}%` : "—";
+}
+
+function renderInsights(){
+  const ys = D.years, first = ys[0], last = ys.at(-1);
+  const gasOver = ys.find(y => D.byGroup[y]["燃氣"].yidu > D.byGroup[y]["燃煤"].yidu);
+  const nucPeak = ys.reduce((a,y) => D.byGroup[y]["核能"].pct > D.byGroup[a]["核能"].pct ? y : a, first);
+  const solarBase = ys.find(y => D.byGroup[y]["太陽光電"].yidu >= 1);   // 第一個達 1 億度的年份
+  const solarMult = D.byGroup[last]["太陽光電"].yidu / D.byGroup[solarBase]["太陽光電"].yidu;
+  const reBest = ys.filter(y => D.summary[y].reYoy !== null).reduce((a,y) => D.summary[y].reYoy > D.summary[a].reYoy ? y : a, ys[1]);
+  const cards = [
+    [gasOver ? `${gasOver} 年` : "—", `燃氣發購電量首次超過燃煤，${last} 年燃氣占 ${fmt(D.byGroup[last]["燃氣"].pct)}%、燃煤占 ${fmt(D.byGroup[last]["燃煤"].pct)}%。`],
+    [`${fmt(D.byGroup[nucPeak]["核能"].pct)}% → ${fmt(D.byGroup[last]["核能"].pct)}%`, `核能占比從 ${nucPeak} 年的高點降到 ${last} 年；核三 2 號機於 2025 年 5 月停機。`],
+    [`${fmt(solarMult,0)} 倍`, `太陽光電從 ${solarBase} 年的 ${fmt(D.byGroup[solarBase]["太陽光電"].yidu)} 億度，成長到 ${last} 年的 ${fmt(D.byGroup[last]["太陽光電"].yidu)} 億度。`],
+    [`+${fmt(D.summary[reBest].reYoy)}%`, `再生能源年增率最高的一年是 ${reBest} 年；${last} 年成長 ${fmt(D.summary[last].reYoy)}%。`],
+  ];
+  $("#insights").innerHTML = cards.map(([b,p]) => `<div class="insight"><b>${b}</b><p>${p}</p></div>`).join("");
+}
+
+/* ---------- 圖 1 ---------- */
+function renderTrend(){
+  const c = chartColors(), ys = yearsInRange(), pct = state.unit === "pct";
+  const datasets = GROUPS.filter(g => state.on.has(g.key)).map(g => ({
+    label:g.key, data: ys.map(y => pct ? D.byGroup[y][g.key].pct : D.byGroup[y][g.key].yidu),
+    backgroundColor: css(g.css), borderWidth:0, stack:"s",
+  }));
+  const opt = baseOptions(c);
+  opt.scales = {
+    x:{ stacked:true, ticks:{ color:c.muted, font:{ family:"IBM Plex Mono", size:11 } }, grid:{ display:false }, title:axisTitle("年度", c) },
+    y:{ stacked:true, beginAtZero:true, max: pct && state.on.size === GROUPS.length ? 100 : undefined,
+        ticks:{ color:c.muted, font:{ family:"IBM Plex Mono", size:11 }, callback:v => pct ? v + "%" : v.toLocaleString() },
+        grid:{ color:c.grid }, title:axisTitle(pct ? "占台電系統發購電量（%）" : "發購電量（億度）", c) },
+  };
+  opt.plugins.tooltip.callbacks = {
+    label: ctx => {
+      const y = ys[ctx.dataIndex], d = D.byGroup[y][ctx.dataset.label];
+      return ` ${ctx.dataset.label}：${fmt(d.yidu)} 億度（${fmt(d.pct)}%）`;
+    },
+    footer: items => {
+      if (!items.length) return "";
+      const y = ys[items[0].dataIndex];
+      const sel = items.reduce((a,i) => a + D.byGroup[y][i.dataset.label].yidu, 0);
+      return `所選類別合計 ${fmt(sel)} 億度／總量 ${fmt(D.summary[y].total)} 億度`;
+    },
+  };
+  opt.plugins.tooltip.itemSort = (a,b) => b.datasetIndex - a.datasetIndex;
+  if (chartTrend) chartTrend.destroy();
+  chartTrend = new Chart($("#chartTrend"), { type:"bar", data:{ labels:ys, datasets }, options:opt });
+  $("#capTrend").textContent =
+    `資料期間 ${state.start}–${state.end} 年；顯示 ${state.on.size}/${GROUPS.length} 類；` +
+    `單位：${pct ? "占台電系統發購電量百分比" : "億度（1 億度 = 1 億 kWh）"}。來源：台電 data.gov.tw #35392，經 etl/etl.py 整理。`;
+}
+
+/* ---------- 圖 2 與排名 ---------- */
+function renderRe(){
+  const c = chartColors(), ys = yearsInRange();
+  const yoy = ys.map(y => D.summary[y].reYoy);
+  const opt = baseOptions(c);
+  opt.plugins.legend = { display:true, position:"bottom", labels:{ color:c.ink, boxWidth:12, font:{ family:"Noto Sans TC", size:12 } } };
+  opt.scales = {
+    x:{ ticks:{ color:c.muted, font:{ family:"IBM Plex Mono", size:11 } }, grid:{ display:false }, title:axisTitle("年度", c) },
+    y:{ position:"left", beginAtZero:true, ticks:{ color:c.muted, callback:v => v + "%" }, grid:{ color:c.grid }, title:axisTitle("再生能源占比（%）", c) },
+    y1:{ position:"right", ticks:{ color:c.muted, callback:v => v + "%" }, grid:{ drawOnChartArea:false }, title:axisTitle("年增率（%）", c) },
+  };
+  opt.plugins.tooltip.callbacks = {
+    label: ctx => ctx.raw === null ? ` ${ctx.dataset.label}：無前一年資料` : ` ${ctx.dataset.label}：${fmt(ctx.raw,2)}%`,
+    afterBody: items => { const y = ys[items[0].dataIndex]; return `再生能源 ${fmt(D.summary[y].re)} 億度`; },
+  };
+  if (chartRe) chartRe.destroy();
+  chartRe = new Chart($("#chartRe"), {
+    data:{ labels:ys, datasets:[
+      { type:"line", label:"再生能源占比", data: ys.map(y => D.summary[y].rePct), yAxisID:"y",
+        borderColor:c.cool, backgroundColor:c.cool, borderWidth:2.5, pointRadius:3, tension:.25, order:0 },
+      { type:"bar", label:"再生能源年增率", data: yoy, yAxisID:"y1",
+        backgroundColor: yoy.map(v => v === null ? "transparent" : (v >= 0 ? c.good : c.bad)), order:1, barPercentage:.6 },
+    ]}, options:opt,
+  });
+  $("#capRe").textContent = `資料期間 ${state.start}–${state.end} 年。年增率＝(當年再生能源發購電量 ÷ 前一年 − 1)×100%；${D.years[0]} 年無前一年資料。`;
+
+  // 排名：區間內各再生能源類別的增量與年均成長率（CAGR）
+  const a = state.start, b = state.end, n = b - a;
+  const rows = RE_KEYS.map(k => {
+    const va = D.byGroup[a][k].yidu, vb = D.byGroup[b][k].yidu;
+    const cagr = (va > 0 && n > 0) ? (Math.pow(vb/va, 1/n) - 1) * 100 : null;
+    return { k, va, vb, inc: vb - va, cagr };
+  }).sort((x,y) => y.inc - x.inc);
+  $("#rankCap").textContent = `${a} → ${b} 年 · 依增量排序 · 億度`;
+  $("#rankTable tbody").innerHTML = rows.map((r,i) => {
+    const color = css(GROUPS.find(g=>g.key===r.k).css);
+    return `<tr><td class="rank">${i+1}</td><td><span class="sw" style="background:${color}"></span>${esc(r.k)}</td>
+      <td class="num">${fmt(r.va)}</td><td class="num">${fmt(r.vb)}</td>
+      <td class="num ${r.inc>=0?"up":"down"}">${r.inc>=0?"+":""}${fmt(r.inc)}</td>
+      <td class="num">${r.cagr===null ? "—" : (r.cagr>=0?"+":"") + fmt(r.cagr) + "%"}</td></tr>`;
+  }).join("");
+}
+
+/* ---------- 表 1 ---------- */
+function renderDetail(){
+  const y = state.year, prev = D.byGroup[y-1];
+  $("#detailTable tbody").innerHTML = GROUPS.map(g => {
+    const d = D.byGroup[y][g.key], p = prev ? prev[g.key].yidu : null;
+    const diff = p === null ? null : d.yidu - p;
+    const chg = (p === null || p === 0) ? null : (d.yidu / p - 1) * 100;
+    const cls = v => v === null ? "" : (v >= 0 ? "up" : "down");
+    const sign = v => v > 0 ? "+" : "";
+    return `<tr><td><span class="sw" style="background:${css(g.css)}"></span>${esc(g.key)}${g.re ? ' <span class="pill">再生</span>' : ""}</td>
+      <td class="num">${fmt(d.yidu,2)}</td><td class="num">${fmt(d.pct,2)}%</td>
+      <td class="num ${cls(diff)}">${diff===null?"—":sign(diff)+fmt(diff,2)}</td>
+      <td class="num ${cls(chg)}">${chg===null?"—":sign(chg)+fmt(chg,1)+"%"}</td></tr>`;
+  }).join("");
+  const s = D.summary[y], ps = D.summary[y-1];
+  const tdiff = ps ? s.total - ps.total : null;
+  $("#detailTable tfoot").innerHTML = `<tr><td>合計（${y}）</td><td class="num">${fmt(s.total,2)}</td><td class="num">100.00%</td>
+    <td class="num">${tdiff===null?"—":(tdiff>0?"+":"")+fmt(tdiff,2)}</td><td class="num">${ps?(tdiff>0?"+":"")+fmt((s.total/ps.total-1)*100,1)+"%":"—"}</td></tr>`;
+}
+
+/* ---------- 方法：核對結果 ---------- */
+function renderChecks(){
+  const r = D.report;
+  if (!r) { $("#checks").innerHTML = '<span class="pill warn">找不到 etl_report.json</span>'; return; }
+  const passed = r.checks.filter(c=>c.passed).length;
+  $("#checks").innerHTML = `<span class="pill">核對 ${passed}/${r.checks.length} 通過</span>` +
+    r.checks.filter(c => /台電公布|類別加總/.test(c.check)).map(c => `<span class="pill" title="${esc(c.detail)}">✓ ${esc(c.check)}</span>`).join("") +
+    (r.warnings||[]).map(w => `<span class="pill warn" title="${esc(w)}">注意：資料精度</span>`).join("");
+  if (r.warnings && r.warnings.length) $("#warnItem").textContent = r.warnings.join("；") + "。";
+}
+
+/* ---------- 發電機構 ---------- */
+const MECH = [
+  { id:"coal", name:"燃煤", groups:["燃煤"], role:"基載",
+    chain:["煤炭（化學能）","燃燒產生熱能","高壓蒸汽","蒸汽渦輪","電能"],
+    flow:["煤炭磨成細粉送進鍋爐燃燒。","鍋爐管內的水被加熱成高溫高壓蒸汽。","蒸汽推動汽輪機，帶動發電機旋轉。","用過的蒸汽在冷凝器冷卻成水，回到鍋爐循環。"],
+    plants:"台中電廠（台中龍井）、林口電廠（新北林口）、大林電廠（高雄小港）" },
+  { id:"gas", name:"燃氣複循環", groups:["燃氣"], role:"基載／中載",
+    chain:["天然氣（化學能）","燃氣渦輪","廢熱回收鍋爐","蒸汽渦輪","電能"],
+    flow:["天然氣與壓縮空氣燃燒，高溫燃氣直接推動燃氣渦輪發電。","燃氣渦輪排出的高溫廢氣，送進廢熱回收鍋爐產生蒸汽。","蒸汽再推動蒸汽渦輪，第二次發電。","同一份燃料發兩次電，熱效率比傳統燃煤高。"],
+    plants:"大潭電廠（桃園觀音）、通霄電廠（苗栗通霄）、興達電廠（高雄永安）" },
+  { id:"hydro", name:"水力", groups:["水力"], role:"再生能源／尖峰",
+    chain:["水的位能","水流下沖","水輪機","電能"],
+    flow:["水庫或攔河堰把水蓄在高處。","打開閘門，水經壓力鋼管往下沖。","水流推動水輪機，帶動發電機旋轉。","發電後的水排回下游河道。"],
+    plants:"大甲溪流域電廠（台中）、大觀一廠（南投水里）" },
+  { id:"pumped", name:"抽蓄水力", groups:["抽蓄水力"], role:"儲能",
+    chain:["多餘電力","抽水上山（位能）","放水發電","水輪機","電能"],
+    flow:["離峰或光電發電多的時段，用電把下池的水抽到上池。","用電尖峰時放水發電。","同一組機組可以當抽水機，也可以當發電機。","效果就像一顆巨大的水電池，所以不計入再生能源。"],
+    plants:"明潭電廠（南投水里，以日月潭為上池）、大觀二廠（南投水里）" },
+  { id:"nuclear", name:"核能", groups:["核能"], role:"已全數停機",
+    chain:["鈾燃料（核能）","核分裂產生熱","蒸汽","蒸汽渦輪","電能"],
+    flow:["鈾-235 原子核分裂釋放熱能。","核三廠為壓水式反應爐：一次側高壓冷卻水把熱帶到蒸汽產生器。","二次側的水變成蒸汽推動汽輪機發電。","一次側與二次側的水彼此隔開。"],
+    plants:"核一廠（新北石門）、核二廠（新北萬里）、核三廠（屏東恆春，2025-05-17 停機）" },
+  { id:"wind", name:"風力", groups:["風力"], role:"再生能源",
+    chain:["風（動能）","葉片旋轉","齒輪箱／直驅","發電機","電能"],
+    flow:["風吹過葉片產生升力而旋轉。","透過齒輪箱提高轉速（直驅式機型不用齒輪箱）。","變流器把電調整成符合電網的 60 Hz。","離岸風場由海底電纜送電上岸。"],
+    plants:"台電離岸風電一期（彰化外海）、彰化與雲林外海風場" },
+  { id:"solar", name:"太陽光電", groups:["太陽光電"], role:"再生能源",
+    chain:["陽光（光能）","光電效應","直流電","變流器","交流電"],
+    flow:["光子把矽晶中的電子激發出來。","P-N 接面讓電子往固定方向流動，產生直流電。","變流器把直流電轉成 60 Hz 交流電。","經升壓設備併入電網。"],
+    plants:"彰濱工業區光電（彰化）、分散在全台的屋頂型光電" },
+];
+function renderMech(id){
+  const m = MECH.find(x=>x.id===id) || MECH[0];
+  document.querySelectorAll("#mtabs .tab").forEach(b => b.setAttribute("aria-selected", b.dataset.id === m.id));
+  const last = D.years.at(-1), first = D.years[0];
+  const v = m.groups.reduce((a,g)=>a + D.byGroup[last][g].yidu, 0);
+  const p = m.groups.reduce((a,g)=>a + D.byGroup[last][g].pct, 0);
+  const v0 = m.groups.reduce((a,g)=>a + D.byGroup[first][g].yidu, 0);
+  const chain = m.chain.map((c,i)=>`<span class="node${i===m.chain.length-1?" end":""}">${esc(c)}</span>`).join('<span class="arrow">→</span>');
+  $("#mpanel").innerHTML = `
+    <div class="panel-top"><h3>${esc(m.name)}</h3><span class="role">${esc(m.role)}</span></div>
+    <div><p class="label" style="margin-bottom:8px">能量轉換鏈</p><div class="chain">${chain}</div></div>
+    <div class="cols">
+      <div><p class="label">運作流程</p><ol class="flow">${m.flow.map(f=>`<li>${esc(f)}</li>`).join("")}</ol></div>
+      <div><p class="label">台灣代表電廠</p><p style="font-size:15px">${esc(m.plants)}</p>
+        <p class="mini">資料集中「${esc(m.groups.join("、"))}」：${last} 年 <b>${fmt(v)}</b> 億度（占 <b>${fmt(p)}%</b>）；${first} 年為 <b>${fmt(v0)}</b> 億度。</p></div>
+    </div>`;
+}
+
+/* ---------- 控制項 ---------- */
+function syncChips(){ document.querySelectorAll("#chips .chip").forEach(b => b.setAttribute("aria-pressed", state.on.has(b.dataset.key))); }
+function rerenderCharts(){ renderTrend(); renderRe(); }
+function initControls(){
+  const opts = D.years.map(y => `<option value="${y}">${y}</option>`).join("");
+  $("#yStart").innerHTML = opts; $("#yEnd").innerHTML = opts; $("#ySel").innerHTML = opts;
+  state.start = D.years[0]; state.end = D.years.at(-1); state.year = D.years.at(-1);
+  $("#yStart").value = state.start; $("#yEnd").value = state.end; $("#ySel").value = state.year;
+
+  $("#yStart").addEventListener("change", e => { state.start = +e.target.value; if (state.start >= state.end) { state.end = Math.min(state.start + 1, D.years.at(-1)); if (state.start >= state.end) state.start = state.end - 1; $("#yStart").value = state.start; $("#yEnd").value = state.end; } rerenderCharts(); });
+  $("#yEnd").addEventListener("change", e => { state.end = +e.target.value; if (state.end <= state.start) { state.start = Math.max(state.end - 1, D.years[0]); if (state.end <= state.start) state.end = state.start + 1; $("#yStart").value = state.start; $("#yEnd").value = state.end; } rerenderCharts(); });
+  $("#ySel").addEventListener("change", e => { state.year = +e.target.value; renderDetail(); });
+
+  const setUnit = u => { state.unit = u; $("#unitAbs").setAttribute("aria-pressed", u==="abs"); $("#unitPct").setAttribute("aria-pressed", u==="pct"); renderTrend(); };
+  $("#unitAbs").addEventListener("click", () => setUnit("abs"));
+  $("#unitPct").addEventListener("click", () => setUnit("pct"));
+
+  $("#chips").innerHTML = GROUPS.map(g => `<button type="button" class="chip" data-key="${g.key}" aria-pressed="true"><i style="background:var(${g.css})"></i>${g.key}</button>`).join("");
+  $("#chips").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    const k = b.dataset.key;
+    if (state.on.has(k)) { if (state.on.size > 1) state.on.delete(k); } else state.on.add(k);
+    syncChips(); renderTrend();
+  });
+  $("#selAll").addEventListener("click", () => { state.on = new Set(GROUPS.map(g=>g.key)); syncChips(); renderTrend(); });
+  $("#selRe").addEventListener("click", () => { state.on = new Set(RE_KEYS); syncChips(); renderTrend(); });
+  $("#selFossil").addEventListener("click", () => { state.on = new Set(GROUPS.filter(g=>g.fossil).map(g=>g.key)); syncChips(); renderTrend(); });
+
+  $("#mtabs").innerHTML = MECH.map(m => `<button type="button" class="tab" role="tab" data-id="${m.id}">${m.name}</button>`).join("");
+  $("#mtabs").addEventListener("click", e => { const b = e.target.closest(".tab"); if (b) renderMech(b.dataset.id); });
+
+  // 主題切換時重畫圖表，讓顏色跟著深淺色模式
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { rerenderCharts(); renderDetail(); renderRe(); });
+  new MutationObserver(() => { rerenderCharts(); renderDetail(); }).observe(document.documentElement, { attributes:true, attributeFilter:["data-theme"] });
+}
+
+load().then(() => {
+  if (typeof Chart === "undefined") throw new Error("Chart.js 沒有載入（請確認可連到 cdnjs.cloudflare.com）");
+  Chart.defaults.font.family = "Noto Sans TC, system-ui, sans-serif";
+  initControls();
+  renderKPIs(); renderInsights(); rerenderCharts(); renderDetail(); renderChecks(); renderMech("gas");
+}).catch(err => {
+  const box = $("#loadError");
+  box.hidden = false;
+  box.innerHTML = `資料載入失敗：${esc(err.message)}。<br>如果是直接雙擊開啟 index.html，瀏覽器會擋住讀取本機 CSV。請改用 GitHub Pages 網址，或在 repo 資料夾執行 <code>python -m http.server</code> 後開啟 <code>http://localhost:8000</code>。`;
+});
+})();
 </script>
 </body>
 </html>
