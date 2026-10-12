@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>台灣發電機構探索</title>
+<meta name="description" content="認識台灣電力系統的發電原理、七種發電方式、2025 年發電結構與能源轉型時間線（學生課程作品）。">
+<style>
+:root{
+  --bg:#f6f7f9; --surface:#ffffff; --text:#1c2430; --muted:#5b6675; --border:#dde2e9;
+  --accent:#1f6feb; --accent-soft:#e3eeff;
+  --thermal:#d9534f; --renew:#2e9e5b; --nuclear:#8e5bd1; --other:#9aa4b2;
+  --shadow:0 1px 3px rgba(20,30,50,.08);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f141b; --surface:#18202a; --text:#e6ebf2; --muted:#9aa7b8; --border:#2a3441;
+    --accent:#6aa6ff; --accent-soft:#1c2c47;
+    --thermal:#ef7b77; --renew:#4cc582; --nuclear:#b48af0; --other:#6f7b8b;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f141b; --surface:#18202a; --text:#e6ebf2; --muted:#9aa7b8; --border:#2a3441;
+  --accent:#6aa6ff; --accent-soft:#1c2c47;
+  --thermal:#ef7b77; --renew:#4cc582; --nuclear:#b48af0; --other:#6f7b8b;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75}
+.wrap{max-width:960px;margin:0 auto;padding:0 16px}
+header.site{position:sticky;top:0;z-index:10;background:var(--surface);border-bottom:1px solid var(--border)}
+header.site .wrap{display:flex;align-items:center;gap:12px;min-height:52px;flex-wrap:wrap}
+.brand{font-weight:700;margin-right:auto}
+nav a{color:var(--muted);text-decoration:none;margin-right:14px;font-size:.92rem}
+nav a:hover{color:var(--accent)}
+#themeBtn{border:1px solid var(--border);background:var(--bg);color:var(--text);border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:.85rem}
+.hero{padding:48px 0 24px}
+.hero h1{font-size:clamp(1.7rem,5vw,2.6rem);margin:0 0 8px;line-height:1.3}
+.hero p{color:var(--muted);margin:0;max-width:640px}
+section{padding:32px 0}
+h2{font-size:1.5rem;margin:0 0 16px}
+h3{font-size:1.1rem;margin:20px 0 8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.formula{font-family:ui-monospace,Consolas,monospace;background:var(--accent-soft);padding:10px 14px;border-radius:8px;display:inline-block;margin:6px 0}
+.big{font-size:2.2rem;font-weight:700;color:var(--accent);line-height:1.2}
+/* tabs */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;-webkit-overflow-scrolling:touch}
+.tabs button{flex:none;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit;font-size:.92rem}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.tabs button:focus-visible,#themeBtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}
+.chain span.node{background:var(--accent-soft);border-radius:8px;padding:4px 10px;font-size:.9rem}
+.chain span.arrow{color:var(--muted)}
+ol.steps{padding-left:1.3em;margin:6px 0}
+ol.steps li{margin:4px 0}
+.tag{display:inline-block;border:1px solid var(--border);border-radius:6px;padding:1px 8px;margin:2px 4px 2px 0;font-size:.88rem}
+.note{color:var(--muted);font-size:.88rem}
+/* mix bar */
+.bar{display:flex;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+.bar div{display:flex;align-items:center;justify-content:center;color:#111;font-weight:700;font-size:.85rem;min-width:0;overflow:hidden}
+.legend{list-style:none;padding:0;margin:14px 0 0;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px}
+.legend li{display:flex;align-items:center;gap:8px}
+.dot{width:14px;height:14px;border-radius:4px;flex:none}
+/* timeline */
+.timeline{list-style:none;margin:0;padding:0 0 0 22px;border-left:3px solid var(--border)}
+.timeline li{position:relative;margin:0 0 22px;padding-left:14px}
+.timeline li::before{content:"";position:absolute;left:-30px;top:6px;width:13px;height:13px;border-radius:50%;background:var(--accent);border:3px solid var(--bg)}
+.timeline time{font-weight:700;color:var(--accent)}
+.targets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+.targets div{background:var(--accent-soft);border-radius:10px;padding:10px;text-align:center}
+.targets b{display:block;font-size:1.5rem}
+footer{border-top:1px solid var(--border);margin-top:32px;padding:24px 0 40px;color:var(--muted);font-size:.88rem}
+@media (max-width:640px){
+  .grid2{grid-template-columns:1fr}
+  nav{display:none}
+  .card{padding:16px}
+  .targets b{font-size:1.2rem}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<header class="site">
+  <div class="wrap">
+    <span class="brand">⚡ 台灣發電機構探索</span>
+    <nav aria-label="頁面導覽">
+      <a href="#principle">發電原理</a><a href="#types">發電方式</a><a href="#mix">發電結構</a><a href="#timeline">能源轉型</a>
+    </nav>
+    <button id="themeBtn" type="button" aria-label="切換深色／淺色模式">🌓 主題</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="hero">
+    <h1>電是怎麼來的？<br>認識台灣的七種發電方式</h1>
+    <p>從電磁感應的基本原理出發，了解台灣電網如何由不同電源組成，以及能源轉型正在發生的事。</p>
+  </div>
+
+  <section id="principle">
+    <h2>一、發電原理</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3 style="margin-top:0">電磁感應</h3>
+        <p>1831 年法拉第發現：當導線切割磁力線，或穿過線圈的磁通量改變時，導線中就會產生感應電動勢。發電機就是利用這個原理，用「動力」推動轉子，讓線圈與磁場持續相對運動而產生電。</p>
+        <div class="formula">ε = −N · ΔΦ / Δt</div>
+        <p class="note">N 為線圈匝數，Φ 為磁通量。轉得越快、磁場越強、匝數越多，電壓越高。</p>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">台灣電網 60 Hz</h3>
+        <div class="big">60 Hz</div>
+        <p>台灣市電是頻率 60 赫茲的交流電，也就是電壓方向每秒來回變化 60 次。全網所有發電機必須「同步」運轉在相同頻率；用電大於供電時頻率下降，反之上升，所以電力調度的核心任務之一就是維持頻率穩定。</p>
+        <p class="note">同步發電機轉速 = 120 × 頻率 ÷ 極數。例如 4 極機組：120×60÷4 = 1800 rpm。</p>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h3 style="margin-top:0">共通概念：各種發電方式差在哪？</h3>
+      <p>除了太陽光電（利用光電效應直接產生直流電，再經變流器轉為交流電），其他方式幾乎都是「<b>讓渦輪機轉動 → 帶動發電機</b>」。差別只在於用什麼來推動渦輪：蒸汽、燃氣、流水或風。</p>
+    </div>
+  </section>
+
+  <section id="types">
+    <h2>二、七種發電方式</h2>
+    <div class="tabs" role="tablist" aria-label="發電方式"></div>
+    <div class="card" id="panel" role="tabpanel" tabindex="0"></div>
+    <p class="note">電廠與機組狀態可能隨時間調整，內容為課程整理，請以台電公開資料為準。</p>
+  </section>
+
+  <section id="mix">
+    <h2>三、2025 年台電發電結構</h2>
+    <div class="card">
+      <div class="bar" role="img" aria-label="2025 年台電發電結構：火力 81.3%、再生能源 12.7%、核能 1.2%、其他 4.8%">
+        <div style="width:81.3%;background:var(--thermal)">火力 81.3%</div>
+        <div style="width:12.7%;background:var(--renew)">12.7%</div>
+        <div style="width:1.2%;background:var(--nuclear)"></div>
+        <div style="width:4.8%;background:var(--other)"></div>
+      </div>
+      <ul class="legend">
+        <li><span class="dot" style="background:var(--thermal)"></span>火力（燃煤、燃氣等）<b>81.3%</b></li>
+        <li><span class="dot" style="background:var(--renew)"></span>再生能源 <b>12.7%</b></li>
+        <li><span class="dot" style="background:var(--nuclear)"></span>核能 <b>1.2%</b></li>
+        <li><span class="dot" style="background:var(--other)"></span>其他／未列入 <b>4.8%</b></li>
+      </ul>
+      <p class="note">前三項依課程提供資料；「其他」為與 100% 的差額（例如抽蓄水力等未單獨列出的項目），僅供比例對照。核能占比低，是因為核二、核一已除役、核三陸續停機。</p>
+    </div>
+  </section>
+
+  <section id="timeline">
+    <h2>四、能源轉型時間線</h2>
+    <ol class="timeline">
+      <li><time datetime="2025-05-17">2025/5/17</time><br>核三 2 號機停機。台灣的核能機組至此全數停止運轉，邁向「非核家園」。</li>
+      <li><time datetime="2025-08-23">2025/8/23</time><br>核三重啟公投未通過。社會對是否讓核三再度運轉進行投票，結果未通過。</li>
+      <li><time datetime="2030">2030 年</time><br>政府設定的發電結構目標：
+        <div class="targets">
+          <div><b>50%</b>燃氣</div><div><b>30%</b>綠電</div><div><b>20%</b>燃煤</div>
+        </div>
+      </li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p><b>本網站為學生課程作品，並非台灣電力公司（台電）官方網站</b>，與台電無隸屬或合作關係，亦未使用台電商標。內容整理自公開資料，僅供學習參考，實際數據請以官方公布為準。</p>
+  </div>
+</footer>
+
+<script>
+const TYPES=[
+{name:"燃煤",chain:["煤炭化學能","鍋爐熱能","高壓蒸汽動能","汽輪機機械能","電能"],
+ steps:["煤炭磨成煤粉送入鍋爐燃燒","加熱鍋爐水管產生高溫高壓蒸汽","蒸汽推動汽輪機旋轉，帶動發電機","蒸汽冷凝成水再回鍋爐循環","升壓後送入電網"],
+ plants:["台中發電廠","興達發電廠","林口發電廠"],
+ note:"出力穩定、適合基載，但碳排放量最高。"},
+{name:"燃氣複循環",chain:["天然氣化學能","燃燒高溫氣體","燃氣渦輪機械能","餘熱蒸汽","蒸汽渦輪機械能","電能"],
+ steps:["天然氣與壓縮空氣在燃燒室燃燒，推動燃氣渦輪發電","排出的高溫廢氣進入廢熱回收鍋爐產生蒸汽","蒸汽再推動蒸汽渦輪第二次發電","兩段發電使熱效率明顯高於傳統燃煤"],
+ plants:["大潭發電廠","通霄發電廠","興達發電廠（燃氣機組）"],
+ note:"效率高、碳排較煤低、啟停快，是目前轉型的主力。"},
+{name:"慣常水力",chain:["水的位能","水流動能","水輪機機械能","電能"],
+ steps:["水庫或攔河堰蓄水形成水位落差","水經壓力鋼管衝擊水輪機","水輪機帶動發電機發電","尾水排回河道"],
+ plants:["德基水力發電廠","石門水力發電廠","大觀二廠（日月潭一帶水力）"],
+ note:"無燃料與排放，但受降雨與地形限制；也兼具防洪、供水功能。"},
+{name:"抽蓄水力",chain:["電能（離峰）","水泵機械能","上池水位能","水輪機機械能","電能（尖峰）"],
+ steps:["離峰時利用多餘電力把下池的水抽到上池儲存","尖峰用電時放水推動水輪機發電","發電後水回到下池，可反覆使用"],
+ plants:["明潭抽蓄發電廠","大觀一廠（大觀抽蓄）"],
+ note:"本身是「大型水力電池」，用於調節尖離峰與穩定電網，並非新增能源。"},
+{name:"核能",chain:["鈾原子核能","裂變熱能","蒸汽動能","汽輪機機械能","電能"],
+ steps:["鈾 235 在反應爐內進行可控制的核分裂，釋放熱量","熱量加熱冷卻水並產生蒸汽","蒸汽推動汽輪發電機發電","冷凝後循環；以控制棒調節反應速率"],
+ plants:["核三廠（馬鞍山，已於 2025/5/17 停機）","核一、核二廠（已停機，進入除役）"],
+ note:"發電時幾乎不排碳、出力穩定；課題在核廢料處理與安全。"},
+{name:"風力",chain:["風的動能","葉片機械能","增速／發電機","電能"],
+ steps:["風吹動葉片使轉子旋轉","經齒輪箱增速（或直驅）帶動發電機","變流器調整成符合 60 Hz 的電力","海纜或電線送上電網"],
+ plants:["台電離岸風力發電計畫（彰化外海）","澎湖中屯風力發電站","台中風力發電站"],
+ note:"無燃料與排放，但出力隨風況變動，需要其他電源搭配。"},
+{name:"太陽光電",chain:["太陽光能","光電效應（直流電）","變流器","交流電能"],
+ steps:["太陽光照射電池板，半導體產生光電效應與直流電","變流器將直流電轉換成 60 Hz 交流電","經升壓併入電網"],
+ plants:["台電興達光電場","台電在各地的太陽光電場（如彰濱工業區等）"],
+ note:"沒有轉動機件，白天發電、夜間為零，中午大量併網會影響電網調度。"}
+];
+const tabs=document.querySelector(".tabs"),panel=document.getElementById("panel");
+function show(i){
+  const t=TYPES[i];
+  [...tabs.children].forEach((b,j)=>{b.setAttribute("aria-selected",j===i);b.tabIndex=j===i?0:-1});
+  panel.setAttribute("aria-labelledby","tab"+i);
+  const chain=t.chain.map(c=>`<span class="node">${c}</span>`).join('<span class="arrow" aria-hidden="true">→</span>');
+  panel.innerHTML=`<h3 style="margin-top:0">${t.name}</h3>
+   <h3>能量轉換鏈</h3><div class="chain">${chain}</div>
+   <h3>運作流程</h3><ol class="steps">${t.steps.map(s=>`<li>${s}</li>`).join("")}</ol>
+   <h3>台灣代表電廠</h3><div>${t.plants.map(p=>`<span class="tag">${p}</span>`).join("")}</div>
+   <p class="note" style="margin-top:12px">特點：${t.note}</p>`;
+}
+TYPES.forEach((t,i)=>{
+  const b=document.createElement("button");
+  b.type="button";b.id="tab"+i;b.setAttribute("role","tab");b.textContent=t.name;
+  b.onclick=()=>show(i);
+  b.onkeydown=e=>{
+    const n=TYPES.length;let k=null;
+    if(e.key==="ArrowRight")k=(i+1)%n;else if(e.key==="ArrowLeft")k=(i-1+n)%n;
+    if(k!==null){show(k);tabs.children[k].focus();e.preventDefault()}
+  };
+  tabs.appendChild(b);
+});
+show(0);
+
+// 主題切換（偏好存 localStorage，失敗時忽略）
+const root=document.documentElement;
+try{const s=localStorage.getItem("theme");if(s)root.dataset.theme=s}catch(e){}
+document.getElementById("themeBtn").onclick=()=>{
+  const dark=root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+  const next=dark?"light":"dark";
+  root.dataset.theme=next;
+  try{localStorage.setItem("theme",next)}catch(e){}
+};
+</script>
+</body>
+</html>
